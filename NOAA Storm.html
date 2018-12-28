@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>&mdash;-cache=TRUE&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<p>#Downloading the data</p>
+
+<h2>&mdash;-cache=TRUE&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-</h2>
+
+<p>if (! file.exists(&#39;stormData.csv.bz2&#39;)){
+  download.file(&#39;<a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2&#x27;,destfile">https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2&#39;,destfile</a> = &#39;stormData.csv.bz2&#39;,method = &#39;curl&#39;,mode = &#39;w&#39;)</p>
+
+<p>}</p>
+
+<p>if(!exists(&#39;stormData&#39;)){
+  strmDataZip &lt;- &#39;stormData.csv.bz2&#39;
+  stormDataFile &lt;- bzfile(description=strmDataZip, open=&ldquo;r&rdquo;)
+  stormData &lt;- read.csv(stormDataFile,fill = TRUE,header = T)<br/>
+  close(stormDataFile)</p>
+
+<h2>}</h2>
+
+<p>#Data Processing</p>
+
+<p>require(ggplot2)
+require(reshape2)
+require(plyr)</p>
+
+<p>stormDataEOPH &lt;- as.data.frame(cbind(stormData$EVTYPE,stormData$FATALITIES+stormData$INJURIES))
+names(stormDataEOPH) &lt;- c(&#39;EVENT.TYPE&#39;,&#39;fatalities.and.injuries&#39;)</p>
+
+<p>stormDataEOPH$EVENT.TYPE &lt;- as.factor(stormDataEOPH$EVENT.TYPE)
+levels(stormDataEOPH$EVENT.TYPE) &lt;- levels(stormData$EVTYPE)</p>
+
+<p>summary &lt;- ddply(.data = stormDataEOPH,.(EVENT.TYPE),summarize,sum(fatalities.and.injuries))
+names(summary)[2] &lt;- &#39;fatalities.and.injuries&#39;
+summary$EVENT.TYPE  &lt;- as.factor(summary$EVENT.TYPE)
+levels(summary$EVENT.TYPE) &lt;- levels(stormData$EVTYPE)
+ord.summary &lt;- summary[order(summary$fatalities.and.injuries,decreasing = T),]
+m &lt;- mean(ord.summary$fatalities.and.injuries)
+susS &lt;- subset(ord.summary,fatalities.and.injuries&gt;m)</p>
+
+<p>median &lt;- median(unique(stormDataEOPH$fatalities.and.injuries))
+subData &lt;- subset(stormDataEOPH,fatalities.and.injuries&gt;median)</p>
+
+<p>ggplot(susS,aes(EVENT.TYPE,fatalities.and.injuries)) + geom_point(aes(colour=EVENT.TYPE)) </p>
+
+<ul>
+<li>theme(legend.position=&ldquo;none&rdquo;,axis.text.x = element_text(angle = 45, hjust = 1)) + 
+ggtitle(&#39;fatilities and injuries from major disasters&#39;) </li>
+</ul>
+
+<p>#&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+##the most severe weather events and their impact on the total number of fatalities and injuries</p>
+
+<p>top20 &lt;- head(susS,20) 
+rownames(top20) &lt;- 1:20
+print(top20)</p>
+
+<p>#&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+##the events that cased the most damage on the economy</p>
+
+<p>#Data Processing
+stormDataEOE &lt;- as.data.frame(cbind(stormData$EVTYPE,stormData$PROPDMG+stormData$CROPDMG))
+names(stormDataEOE) &lt;- c(&#39;Event.Type&#39;,&#39;economic.damages&#39;)</p>
+
+<p>summary &lt;- ddply(.data = stormDataEOE,.(Event.Type),summarize,sum(economic.damages))
+names(summary)[2] &lt;- &ldquo;economic.damages&rdquo;
+summary$Event.Type  &lt;- as.factor(summary$Event.Type)
+levels(summary$Event.Type) &lt;- levels(stormData$EVTYPE)
+ord.summary &lt;- summary[order(summary$economic.damages,decreasing = T),]
+m &lt;- mean(ord.summary$economic.damages)
+susS &lt;- subset(ord.summary,economic.damages&gt;m)</p>
+
+<p>#Results</p>
+
+<p>ggplot(susS,aes(Event.Type,economic.damages)) + geom_point(aes(colour=Event.Type)) + theme(legend.position=&ldquo;none&rdquo;,axis.text.x = element_text(angle = 45, hjust = 1)) + ggtitle(&#39;Economic damage caused by major disasters&#39;) </p>
+
+<p>#&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;
+##a list of 20 events that cause the most economy damages sorted decreasingly</p>
+
+<p>top20 &lt;- head(susS,20)
+rownames(top20) &lt;- 1:20
+print(top20)</p>
+
+</body>
+
+</html>
